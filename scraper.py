@@ -1,0 +1,36 @@
+import requests
+from bs4 import BeautifulSoup
+import os
+import time
+
+URL = 'https://www.reddit.com/r/ProgrammerHumor/top/?t=day'
+headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:81.0) Gecko/20100101 Firefox/81.0'}
+
+page = requests.get(URL, headers = headers)
+soup = BeautifulSoup(page.content, 'html.parser')
+
+def get_likes():
+    like = soup.find(attrs = {'class', '_1rZYMD_4xY3gRcSS3p8ODO'}).get_text()
+    converted_like = float(like[0:2])
+
+def get_images():
+    image_tags = soup.findAll('img', {'class': '_2_tDEnGMLxpM6uOa2kaDB3 ImageBox-image media-element _1XWObl-3b9tPy64oaG6fax'})
+    if not os.path.exists('images'):
+        os.makedirs('images')
+    os.chdir('images')
+    x = 0
+    for image in image_tags:
+        try:
+            url = image['src']
+            source = requests.get(url)
+            if source.status_code == 200:
+                with open('image-' + str(x) + '.jpg', 'wb') as f:
+                    f.write(requests.get(url).content)
+                    f.close()
+                    x += 1
+        except:
+            pass
+
+# while True:
+#     get_images()
+#     time.sleep(60)
